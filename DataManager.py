@@ -68,21 +68,21 @@ class DataManager(object):
         self.loadImages()
 
     def getNumpyImages(self):
-        dat = self.getNumpyData(self.sitkImages,sitk.sitkLinear)
+        dat = self.getNumpyData(self.sitkImages, sitk.sitkLinear)
         return dat
 
 
     def getNumpyGT(self):
-        dat = self.getNumpyData(self.sitkGT,sitk.sitkLinear)
+        dat = self.getNumpyData(self.sitkGT, sitk.sitkLinear)
 
         for key in dat:
-            dat[key] = (dat[key]>0.5).astype(dtype=np.float32)
+            dat[key] = (dat[key]>0.5).astype(dtype = np.float32)
 
         return dat
 
 
     def getNumpyData(self,dat,method):
-        ret=dict()
+        ret = dict()
         for key in dat:
             ret[key] = np.zeros([self.params['VolSize'][0], self.params['VolSize'][1], self.params['VolSize'][2]], dtype=np.float32)
 
