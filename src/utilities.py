@@ -91,7 +91,7 @@ def produceRandomlyDeformedImage(image, label, numcontrolpoints, stdDef):
     paramsNp = np.asarray(params, dtype = float)
     paramsNp = paramsNp + np.random.randn(paramsNp.shape[0]) * stdDef
 
-    # remove z deformations! The resolution in z is too bad   
+    # remove z deformations! The resolution in z is too bad
     paramsNp[0 : int(len(params) / 3)] = 0
 
     params = tuple(paramsNp)
