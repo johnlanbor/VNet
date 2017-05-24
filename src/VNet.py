@@ -7,19 +7,8 @@ import DataManager as DM
 import utilities
 from os.path import splitext
 from multiprocessing import Process, Queue
-
-log_path = '../logs/_' + datetime.date.today().strftime('%Y%m%d') + '.log'
-logger = logging.getLogger("VNet")
-logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler(log_path)
-ch = logging.StreamHandler()
-fh.setLevel(logging.DEBUG)
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('[%(asctime)s][%(name)s][%(levelname)s]: %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-logger.addHandler(fh)
-logger.addHandler(ch)
+import datetime
+import logging
 
 DEBUG = False
 
@@ -98,7 +87,7 @@ class VNet(object):
             # solver.net.blobs['labelWeight'].data[...] = batchWeight.astype(dtype = np.float32)
             # use only if you do softmax with loss
 
-            logger.debug("iter: ", it)
+            print "iter: ", it
             solver.step(1)
             train_loss[it] = solver.net.blobs['loss'].data
 
@@ -141,8 +130,8 @@ class VNet(object):
             f.write("display: 1 \n")
             f.write("snapshot: 500 \n")
             f.write("snapshot_prefix: \"" + self.params['ModelParams']['dirSnapshots'] + "\" \n")
-            f.write("test_iter: 20 \n")
-            f.write("test_interval: " + str(test_interval) + "\n")
+            # f.write("test_iter: 20 \n")
+            # f.write("test_interval: " + str(test_interval) + "\n")
 
         f.close()
         solver = caffe.SGDSolver("solver.prototxt")
