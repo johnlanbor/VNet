@@ -6,7 +6,7 @@ caffe_path="${cur_dir}/../caffe/python"
 # echo ${caffe_path}
 
 export PYTHONPATH=${caffe_path}:$PYTHONPATH
-echo $PYTHONPATH
+# echo $PYTHONPATH
 
 export GLOG_minloglevel=2
 

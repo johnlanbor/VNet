@@ -33,13 +33,13 @@ class VNet(object):
         whichDataList = np.random.randint(len(keysIMG), size = int(nr_iter_dataAug / self.params['ModelParams']['nProc']))
         whichDataForMatchingList = np.random.randint(len(keysIMG), size = int(nr_iter_dataAug / self.params['ModelParams']['nProc']))
 
-        for whichData, whichDataForMatching in zip(whichDataList,whichDataForMatchingList):
+        for whichData, whichDataForMatching in zip(whichDataList, whichDataForMatchingList):
             filename, ext = splitext(keysIMG[whichData])
 
             currGtKey = filename + '_segmentation' + ext
             currImgKey = filename + ext
 
-            # data agugumentation through hist matching across different examples...
+            # data agugumentation through hist matching across different examples
             ImgKeyMatching = keysIMG[whichDataForMatching]
 
             defImg = numpyImages[currImgKey]
