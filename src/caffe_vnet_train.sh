@@ -10,9 +10,12 @@ export PYTHONPATH=${caffe_path}:$PYTHONPATH
 
 export GLOG_minloglevel=2
 
+core_num=`nproc`
+
 unset OMP_NUM_THREADS
-export OMP_NUM_THREADS=44
-# export MKL_NUM_THREADS
+export OMP_NUM_THREADS=${core_num}
+export MKL_NUM_THREADS=${core_num}
+# export OMP_DYNAMIC="False"
 
 # export OMP_WAIT_POLICY=passive
 unset MKL_THREADING_LAYER
