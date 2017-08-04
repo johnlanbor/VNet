@@ -10,5 +10,5 @@ You only need to follow the README of ./caffe folder to build caffe
 # How to run
 ```shell
 $ cd ./src
-$
+$ . ./caffe_vnet_train.sh
 ```
