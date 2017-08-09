@@ -4,7 +4,6 @@ input_shape{dim: 2 dim: 1 dim: 64 dim: 128 dim: 128}
 input: "label"
 input_shape{dim: 2 dim: 1 dim: 64 dim: 128 dim: 128}
 
-
 layer {
   name: "conv_in128_chan16"
   type: "Convolution"
@@ -33,7 +32,6 @@ layer {
     }
   }
 }
-
 
 layer {
   name: "split1_1"
@@ -378,6 +376,7 @@ layer {
     }
   }
 }
+
 layer {
   name: "relu_conv_in16_chan128"
   type: "PReLU"
@@ -537,6 +536,7 @@ layer {
     }
   }
 }
+
 layer {
   name: "relu_conv_in8_chan256"
   type: "PReLU"
@@ -572,6 +572,7 @@ layer {
     }
   }
 }
+
 layer {
   name: "relu_conv_in8_chan256_2"
   type: "PReLU"
@@ -969,9 +970,8 @@ layer {
   bottom: "outBlock1_2"
 }
 
+
 #------------- THIRD DEPOOL -----------------
-
-
 layer {
   name: "conv_in64_chan32_right"
   type: "Convolution"
@@ -1114,9 +1114,8 @@ layer {
   top: "outBlock2_1"
 }
 
+
 #------------- NINETH BLOCK -----------------
-
-
 layer {
   name: "conv_in128_chan2_right"
   type: "Convolution"
@@ -1195,8 +1194,7 @@ layer {
     }
   }
 
-
-  layer {
+layer {
     name: "reshaperes"
     type: "Reshape"
     bottom: "conv_in128_chan2_2_right"
@@ -1210,15 +1208,12 @@ layer {
     }
   }
 
-
-
 layer {
     name: "softmax"
     type: "Softmax"
     bottom: "conv_in128_chan2_right_flat"
     top: "softmax_out"
 }
-
 
 layer {
   type: 'Python'
@@ -1229,7 +1224,7 @@ layer {
 
   python_param {
     # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'pyLayer'
+    module: 'DiceLossLayer'
     # the layer name -- the class name in the module
     layer: 'DiceLoss'
   }
