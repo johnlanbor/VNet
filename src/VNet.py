@@ -3,12 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
+import sys
 import DataManager as DM
 import utilities
 from os.path import splitext
 from multiprocessing import Process, Queue
 import datetime
 import logging
+import time
+import psutil
+import signal
 
 DEBUG = False
 
@@ -65,26 +69,26 @@ class VNet(object):
         batchsize = self.params['ModelParams']['batchsize']
 
         # here we use (D, H, W) layout
-        batchData = np.zeros((batchsize, 1, self.params['DataManagerParams']['VolSize'][2], self.params['DataManagerParams']['VolSize'][0], self.params['DataManagerParams']['VolSize'][1]), dtype = float)
-        batchLabel = np.zeros((batchsize, 1, self.params['DataManagerParams']['VolSize'][2], self.params['DataManagerParams']['VolSize'][0], self.params['DataManagerParams']['VolSize'][1]), dtype = float)
+        batchData = np.zeros((batchsize, 1, self.params['DataManagerParams']['VolSize'][2], self.params['DataManagerParams']['VolSize'][0], self.params['DataManagerParams']['VolSize'][1]), dtype=float)
+        batchLabel = np.zeros((batchsize, 1, self.params['DataManagerParams']['VolSize'][2], self.params['DataManagerParams']['VolSize'][0], self.params['DataManagerParams']['VolSize'][1]), dtype=float)
 
         # only used if you do weighted multinomial logistic regression
         # batchWeight = np.zeros((batchsize, 1, self.params['DataManagerParams']['VolSize'][2],
         #                        self.params['DataManagerParams']['VolSize'][0],
-        #                        self.params['DataManagerParams']['VolSize'][1]), dtype = float)
+        #                        self.params['DataManagerParams']['VolSize'][1]), dtype=float)
 
         train_loss = np.zeros(nr_iter)
         for it in range(nr_iter):
             for i in range(batchsize):
                 [defImg, defLab, defWeight] = dataQueue.get()
 
-                batchData[i, 0, :, :, :] = np.transpose(defImg.astype(dtype = np.float32, copy = False), [2, 0, 1])
-                batchLabel[i, 0, :, :, :] = np.transpose((defLab > 0.5).astype(dtype = np.float32, copy = False), [2, 0, 1])
+                batchData[i, 0, :, :, :] = np.transpose(defImg.astype(dtype = np.float32, copy=False), [2, 0, 1])
+                batchLabel[i, 0, :, :, :] = np.transpose((defLab > 0.5).astype(dtype = np.float32, copy=False), [2, 0, 1])
                 # batchWeight[i, 0, :, :, :] = np.transpose(defWeight.astype(dtype = np.float32, copy = False), [2, 0, 1])
 
-            solver.net.blobs['data'].data[...] = batchData.astype(dtype = np.float32, copy = False)
-            solver.net.blobs['label'].data[...] = batchLabel.astype(dtype = np.float32, copy = False)
-            # solver.net.blobs['labelWeight'].data[...] = batchWeight.astype(dtype = np.float32)
+            solver.net.blobs['data'].data[...] = batchData.astype(dtype=np.float32, copy=False)
+            solver.net.blobs['label'].data[...] = batchLabel.astype(dtype=np.float32, copy=False)
+            # solver.net.blobs['labelWeight'].data[...] = batchWeight.astype(dtype=np.float32)
             # use only if you do softmax with loss
 
             print "iter: ", it
@@ -129,13 +133,14 @@ class VNet(object):
             f.write("gamma: 0.1 \n")
             f.write("display: 1 \n")
             f.write("snapshot: 500 \n")
+            f.write("random_seed: 42 \n")
             f.write("snapshot_prefix: \"" + self.params['ModelParams']['dirSnapshots'] + "\" \n")
             # f.write("test_iter: 20 \n")
             # f.write("test_interval: " + str(test_interval) + "\n")
 
         f.close()
         solver = caffe.SGDSolver("solver.prototxt")
-        os.remove("solver.prototxt")
+        # os.remove("solver.prototxt")
 
         if (self.params['ModelParams']['snapshot'] > 0):
             solver.restore(self.params['ModelParams']['dirSnapshots'] + "_iter_" + str(
@@ -161,11 +166,20 @@ class VNet(object):
         dataPreparation = [None] * self.params['ModelParams']['nProc']
 
         for proc in range(0, self.params['ModelParams']['nProc']):
-            dataPreparation[proc] = Process(target = self.prepareDataThread, args = (dataQueue, numpyImages, numpyGT))
+            dataPreparation[proc] = Process(target=self.prepareDataThread, args=(dataQueue, numpyImages, numpyGT))
             dataPreparation[proc].daemon = True
             dataPreparation[proc].start()
+            p = psutil.Process(dataPreparation[proc].pid)
+            p.cpu_affinity([67 - proc])
 
         self.trainThread(dataQueue, solver)
+
+        try:
+            for p in dataPreparation:
+                p.join()
+        except KeyboardInterrupt:
+            for p in dataPreparation:
+                p.ternimate()
 
 
     def test(self):
