@@ -179,7 +179,7 @@ class VNet(object):
                 p.join()
         except KeyboardInterrupt:
             for p in dataPreparation:
-                p.ternimate()
+                p.terminate()
 
 
     def test(self):
