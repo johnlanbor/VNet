@@ -1,3 +1,5 @@
+这是一个3D版本的UNet
+效果如何未做测试
 # How to checkout
 ```shell
 $ git clone --recursive https://github.com/yao-matrix/VNet.git
